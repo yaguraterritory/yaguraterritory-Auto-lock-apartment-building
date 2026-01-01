@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>矢倉会衆オートロックマンション地図</title>
     <style>
-        /* 背景を濃いグレーに変更、テキストをすべて白に変更、フォントをメイリオに */
+        /* 基本設定 */
         body {
             background-color: #2c3e50;
             color: #ffffff;
@@ -14,50 +14,91 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh; /* heightからmin-heightに変更（中身が溢れた際に対応） */
             margin: 0;
-            text-align: center; /* すべてのテキストをセンター揃え */
+            padding: 20px; /* スマホ時の端の余白 */
+            box-sizing: border-box;
+            text-align: center;
         }
 
+        /* タイトル設定 */
         h1 {
-            margin-bottom: 40px;
-            font-size: 1.8rem;
+            margin-bottom: 30px;
+            font-size: 1.5rem; /* スマホ向けに少し小さく開始 */
+            line-height: 1.4;
         }
 
+        /* コンテナ設定 */
         ul {
             list-style: none;
             padding: 0;
-            width: 90%;
-            max-width: 400px;
+            margin: 0;
+            width: 100%;
+            max-width: 500px; /* PCでの最大幅 */
         }
 
         li {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
-        /* リンクをブルーボタンに変更、テキストは白 */
+        /* ボタンデザイン（レスポンシブ） */
         .btn {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             background-color: #007bff;
             color: #ffffff;
             text-decoration: none;
-            padding: 15px 20px;
-            border-radius: 8px;
+            padding: 18px 20px; /* タップしやすい高さ */
+            border-radius: 12px; /* 少し角を丸くしてモダンに */
             font-weight: bold;
-            transition: background-color 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            -webkit-tap-highlight-color: transparent; /* スマホタップ時の青枠消し */
         }
 
-        .btn:hover {
-            background-color: #0056b3;
+        /* PCでのホバーエフェクト */
+        @media (hover: hover) {
+            .btn:hover {
+                background-color: #0056b3;
+                transform: translateY(-2px); /* 少し浮き上がる */
+                box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+            }
+        }
+
+        /* タブレット・PC向けの調整 */
+        @media (min-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+                margin-bottom: 50px;
+            }
+            
+            /* 横並びを検討する場合（必要なければこのまま縦並びでもOK） */
+            ul {
+                max-width: 600px;
+            }
+
+            .btn {
+                padding: 20px 30px;
+                font-size: 1.25rem;
+            }
         }
     </style>
 </head>
 <body>
     <h1>矢倉会衆<br>オートロックマンション地図</h1>
     <ul>
-        <li><a href="family-apartments/index.html" class="btn">ファミリー向け 地図を見る</a></li>
-        <li><a href="single-person-apartments/index.html" class="btn">単身者向け 地図を見る</a></li>
+        <li>
+            <a href="family-apartments/index.html" class="btn">
+                ファミリー向け 地図を見る
+            </a>
+        </li>
+        <li>
+            <a href="single-person-apartments/index.html" class="btn">
+                単身者向け 地図を見る
+            </a>
+        </li>
     </ul>
 </body>
 </html>
