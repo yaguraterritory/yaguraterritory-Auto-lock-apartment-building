@@ -3,31 +3,37 @@
 <head>
   <meta charset="utf-8">
   <title>ファミリー向けオートロックマンション地図</title>
-  <style>
+<style>
     body, html { margin:0; padding:0; height:100%; }
     #map { width:100%; height:100%; }
 
+    /* map-titleを画面上中央に配置 */
     .map-title {
       position: absolute;
-      top: 12px;
-      right: 12px;
+      top: 15px;            /* 上からの距離 */
+      left: 50%;            /* 左から50%の位置へ */
+      transform: translateX(-50%); /* 自身の幅の半分だけ左に戻して完全に中央寄せ */
       z-index: 1000;
 
-      background: rgba(0, 160, 160, 0.9); /* 塗りありベース */
+      background: rgba(0, 160, 160, 0.95); /* 視認性を高めるため少し濃く */
       color: #ffffff;
-      padding: 10px 14px;
-      border-radius: 8px;
+      padding: 12px 20px;
+      border-radius: 50px;  /* 角を丸くしてボタンのようなデザインに */
 
-      font-size: 14px;
+      /* スマホ向けに初期サイズを大きく設定 */
+      font-size: 16px;      
       font-weight: bold;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      white-space: nowrap;  /* 折り返しを防止 */
+      text-align: center;
     }
 
-    /* 画面が大きい場合は少しだけ文字を大きく */
+    /* 画面が大きい（タブレット・PC）場合の調整 */
     @media (min-width: 768px) {
       .map-title {
-        font-size: 16px;
-        padding: 12px 18px;
+        top: 20px;
+        font-size: 18px;
+        padding: 14px 28px;
       }
     }
   </style>
