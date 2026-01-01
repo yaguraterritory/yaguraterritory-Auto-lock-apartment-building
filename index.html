@@ -2,13 +2,62 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>矢倉会衆オートロックマンション地図</title>
+    <style>
+        /* 背景を濃いグレーに変更、テキストをすべて白に変更、フォントをメイリオに */
+        body {
+            background-color: #2c3e50;
+            color: #ffffff;
+            font-family: "Meiryo", "Hiragino Kaku Gothic ProN", sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center; /* すべてのテキストをセンター揃え */
+        }
+
+        h1 {
+            margin-bottom: 40px;
+            font-size: 1.8rem;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        li {
+            margin-bottom: 20px;
+        }
+
+        /* リンクをブルーボタンに変更、テキストは白 */
+        .btn {
+            display: block;
+            background-color: #007bff;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-    <h1>矢倉会衆オートロックマンション地図</h1>
+    <h1>矢倉会衆<br>オートロックマンション地図</h1>
     <ul>
-        <li><a href="family-apartments/index.html">ファミリー向けオートロックマンション地図を見る</a></li>
-        <li><a href="single-person-apartments/index.html">単身者向けオートロックマンション地図を見る</a></li>
+        <li><a href="family-apartments/index.html" class="btn">ファミリー向け 地図を見る</a></li>
+        <li><a href="single-person-apartments/index.html" class="btn">単身者向け 地図を見る</a></li>
     </ul>
 </body>
 </html>
