@@ -59,14 +59,17 @@
 
     const INITIAL_CENTER = { lat: 35.012, lng: 135.965 };
 
-    function getMarkerScale() {
+function getMarkerScale() {
       const w = window.innerWidth;
       // 【スマホ】
-      if (w <= 600) return { apt: 0.07, user: 28 };
+      // apt（マンションアイコン）を 0.07 から 0.12 に大きくしました
+      if (w <= 600) return { apt: 0.12, user: 28 }; 
+      
       // 【タブレット】
-      if (w <= 1024) return { apt: 0.040, user: 12 };
+      if (w <= 1024) return { apt: 0.06, user: 12 };
+      
       // 【PC・その他】
-      return { apt: 0.040, user: 12 };
+      return { apt: 0.05, user: 12 };
     }
 
     const apartments = [
