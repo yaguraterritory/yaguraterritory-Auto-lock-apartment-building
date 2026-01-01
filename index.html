@@ -14,9 +14,9 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh; /* heightからmin-heightに変更（中身が溢れた際に対応） */
+            min-height: 100vh;
             margin: 0;
-            padding: 20px; /* スマホ時の端の余白 */
+            padding: 20px;
             box-sizing: border-box;
             text-align: center;
         }
@@ -24,7 +24,7 @@
         /* タイトル設定 */
         h1 {
             margin-bottom: 30px;
-            font-size: 1.5rem; /* スマホ向けに少し小さく開始 */
+            font-size: 1.5rem;
             line-height: 1.4;
         }
 
@@ -34,55 +34,55 @@
             padding: 0;
             margin: 0;
             width: 100%;
-            max-width: 500px; /* PCでの最大幅 */
+            max-width: 500px;
         }
 
         li {
-            margin-bottom: 15px;
+            margin-bottom: 20px; /* 余白を少し広げました */
         }
 
-        /* ボタンデザイン（レスポンシブ） */
+        /* ボタンデザイン */
         .btn {
             display: flex;
+            flex-direction: column; /* 中の要素を縦並び（改行）にする */
             align-items: center;
             justify-content: center;
             background-color: #007bff;
             color: #ffffff;
             text-decoration: none;
-            padding: 18px 20px; /* タップしやすい高さ */
-            border-radius: 12px; /* 少し角を丸くしてモダンに */
+            padding: 20px; 
+            border-radius: 12px;
             font-weight: bold;
-            font-size: 1.1rem;
             transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            -webkit-tap-highlight-color: transparent; /* スマホタップ時の青枠消し */
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* PCでのホバーエフェクト */
+        /* 上の段のテキスト（ファミリー向け 等）を強調 */
+        .btn-main {
+            font-size: 1.4rem;
+            margin-bottom: 4px;
+        }
+
+        /* 下の段のテキスト（マンション地図を見る）を少し小さく */
+        .btn-sub {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
         @media (hover: hover) {
             .btn:hover {
                 background-color: #0056b3;
-                transform: translateY(-2px); /* 少し浮き上がる */
+                transform: translateY(-2px);
                 box-shadow: 0 6px 16px rgba(0,0,0,0.4);
             }
         }
 
-        /* タブレット・PC向けの調整 */
         @media (min-width: 768px) {
-            h1 {
-                font-size: 2.2rem;
-                margin-bottom: 50px;
-            }
-            
-            /* 横並びを検討する場合（必要なければこのまま縦並びでもOK） */
-            ul {
-                max-width: 600px;
-            }
-
-            .btn {
-                padding: 20px 30px;
-                font-size: 1.25rem;
-            }
+            h1 { font-size: 2.2rem; margin-bottom: 50px; }
+            ul { max-width: 600px; }
+            .btn-main { font-size: 1.6rem; }
+            .btn-sub { font-size: 1.1rem; }
         }
     </style>
 </head>
@@ -91,15 +91,16 @@
     <ul>
         <li>
             <a href="family-apartments/index.html" class="btn">
-                ファミリー向けマンション地図を見る
+                <span class="btn-main">ファミリー向け</span>
+                <span class="btn-sub">マンション地図を見る</span>
             </a>
         </li>
         <li>
             <a href="single-person-apartments/index.html" class="btn">
-                単身者向けマンション地図を見る
+                <span class="btn-main">単身者向け</span>
+                <span class="btn-sub">マンション地図を見る</span>
             </a>
         </li>
     </ul>
 </body>
 </html>
-
