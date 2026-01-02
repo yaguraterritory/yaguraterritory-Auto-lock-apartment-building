@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>矢倉会衆オートロックマンション地図</title>
+    <title>ユーザー登録 - 矢倉会衆</title>
     <style>
-        /* 基本設定 */
+        /* 既存のデザインを継承 */
         body {
             background-color: #2c3e50;
             color: #ffffff;
@@ -20,87 +20,118 @@
             box-sizing: border-box;
             text-align: center;
         }
-
-        /* タイトル設定 */
-        h1 {
-            margin-bottom: 30px;
-            font-size: 1.5rem;
-            line-height: 1.4;
-        }
-
-        /* コンテナ設定 */
-        ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
+        .container {
             width: 100%;
-            max-width: 500px;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
         }
-
-        li {
-            margin-bottom: 20px; /* 余白を少し広げました */
-        }
-
-        /* ボタンデザイン */
-        .btn {
+        h1 { font-size: 1.4rem; margin-bottom: 25px; line-height: 1.4; }
+        
+        .btn-google {
             display: flex;
-            flex-direction: column; /* 中の要素を縦並び（改行）にする */
             align-items: center;
             justify-content: center;
-            background-color: #007bff;
-            color: #ffffff;
+            background-color: #ffffff;
+            color: #757575;
             text-decoration: none;
-            padding: 20px; 
-            border-radius: 12px;
+            padding: 12px;
+            border-radius: 8px;
             font-weight: bold;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            -webkit-tap-highlight-color: transparent;
+            margin-bottom: 20px;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .btn-google img { width: 20px; margin-right: 12px; }
+
+        .divider {
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #bdc3c7;
+        }
+        .divider::before, .divider::after {
+            content: ""; flex: 1; height: 1px; background: #bdc3c7; margin: 0 10px;
         }
 
-        /* 上の段のテキスト（ファミリー向け 等）を強調 */
-        .btn-main {
-            font-size: 1.4rem;
-            margin-bottom: 4px;
+        .input-group { text-align: left; margin-bottom: 15px; }
+        label { font-size: 0.9rem; margin-bottom: 5px; display: block; }
+        input {
+            width: 100%; padding: 12px; border-radius: 8px; border: none;
+            box-sizing: border-box; font-size: 1rem;
         }
 
-        /* 下の段のテキスト（マンション地図を見る）を少し小さく */
-        .btn-sub {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-
-        @media (hover: hover) {
-            .btn:hover {
-                background-color: #0056b3;
-                transform: translateY(-2px);
-                box-shadow: 0 6px 16px rgba(0,0,0,0.4);
-            }
-        }
-
-        @media (min-width: 768px) {
-            h1 { font-size: 2.2rem; margin-bottom: 50px; }
-            ul { max-width: 600px; }
-            .btn-main { font-size: 1.6rem; }
-            .btn-sub { font-size: 1.1rem; }
+        /* 登録ボタン：クリックで menu.html へ飛ぶように設定 */
+        .btn-submit {
+            display: block;
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+            box-sizing: border-box;
         }
     </style>
 </head>
 <body>
-    <h1>矢倉会衆<br>オートロックマンション地図</h1>
-    <ul>
-        <li>
-            <a href="family-apartments/index.html" class="btn">
-                <span class="btn-main">ファミリー向け</span>
-                <span class="btn-sub">マンション地図を見る</span>
-            </a>
-        </li>
-        <li>
-            <a href="single-person-apartments/index.html" class="btn">
-                <span class="btn-main">単身者向け</span>
-                <span class="btn-sub">マンション地図を見る</span>
-            </a>
-        </li>
-    </ul>
+
+<div class="container">
+        <h1>矢倉会衆<br>地図システム ユーザー登録</h1>
+
+        <button id="google-login-btn" class="btn-google">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo">
+            Gmailでログインして進む
+        </button>
+
+        <div class="divider">または</div>
+        </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        // 【重要】ステップ1でコピーした firebaseConfig をここに貼り付けてください
+        const firebaseConfig = {
+            apiKey: "AIzaSyDRJeJN6L4Ts3mecxjwakBOHLXT_Nk-rVg",
+            authDomain: "yagura-territory-95baa.firebaseapp.com",
+            projectId: "yagura-territory-95baa",
+            storageBucket: "yagura-territory-95baa.firebasestorage.app",
+            messagingSenderId: "165041245576",
+            appId: "1:165041245576:web:75b37f93099baee8e8fe3d"
+        };
+
+        // Firebase初期化
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        // ボタンクリック時の処理
+        const loginBtn = document.getElementById('google-login-btn');
+        loginBtn.addEventListener('click', () => {
+            signInWithPopup(auth, provider)
+                .then((result) => {
+                    // ログイン成功時
+                    console.log("ログイン成功:", result.user);
+                    // menu.html へ移動
+                    window.location.href = "menu.html";
+                }).catch((error) => {
+                    // エラー時
+                    console.error("エラー:", error.message);
+                    alert("ログインに失敗しました: " + error.message);
+                });
+        });
+    </script>
+
 </body>
 </html>
