@@ -61,9 +61,11 @@
 
 function getMarkerScale() {
       const w = window.innerWidth;
-      // 【スマホ】
-      if (w <= 390) return { apt: 0.18, user: 32 }; 
-      if (w <= 600) return { apt: 0.12, user: 28 }; 
+      // 【スマホ縦持ち：概ね幅430px以下】
+      if (w <= 430) return { apt: 0.30, user: 40 }; 
+
+      // 【スマホ横持ち・小さめのタブレット：幅600px以下】
+      if (w <= 600) return { apt: 0.18, user: 28 }; 
       
       // 【タブレット】
       if (w <= 1194) return { apt: 0.04, user: 12 };
