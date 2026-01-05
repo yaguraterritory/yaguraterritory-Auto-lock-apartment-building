@@ -52,7 +52,7 @@
 <body>
 
 <div class="container">
-    <h1>矢倉会衆<br>地図システム ユーザー登録</h1>
+    <h1>矢倉会衆<br>オートロックマンション地図システム ユーザー登録</h1>
 
     <button id="google-login-btn" class="btn-google">
         <img src="google-logo.png" alt="Google logo">
@@ -62,7 +62,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDRJeJN6L4Ts3mecxjwakBOHLXT_Nk-rVg",
@@ -77,28 +77,65 @@
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
+    // ★ここに許可するメールアドレスを追加してください
+    const allowedEmails = [
+        //長老
+        "植平宏樹 <hirokiuehira@gmail.com>",
+        "嶋林聡 <sou.goodnews@gmail.com>",
+        "冨岡恭行 <y.tomy1170@gmail.com>",
+        "山口三樹 <mikiymg1204@gmail.com>",
+        "福田高士 <mukoyama_takashi@yahoo.co.jp>",
+        "北村智志 <ai1kazoku4keei2@gmail.com>",
+        "藤原大樹 <bi.bi.bitter.mana.11@gmail.com>",
+        "坪内達郎 <yuzunotubo@yahoo.co.jp>",
+        "足立陽平 <youcyanmonth@gmail.com>",
+        "中西慎 <shintec.swear718@gmail.com>",
+        //援助奉仕者
+        "山口佳夫 <yo_sioaji@icloud.com>",
+        "中西雅也 <nakanishi.masaya0228@gmail.com>",
+        "瀬川光也 <jw_segawa@yahoo.com>",
+        "榎並俊武 <jw.3330serena@gmail.com>",
+        "中村幸平 <koooo5912@gmail.com>",
+        //区域部門サポーター
+        "中西順 <jun.nkns39@gmail.com>",
+        "山口幹太 <yamakan.0739@gmail.com>",
+        "中澤優美 <yumi.nakazawa112@gmail.com>",
+        //開拓者
+        "植平裕子 <hiroko-andarina-165@hotmail.co.jp>",
+    ];
+
     const loginBtn = document.getElementById('google-login-btn');
     const btnText = loginBtn.querySelector('span');
 
     loginBtn.addEventListener('click', () => {
-        // ボタンを無効化
         loginBtn.disabled = true;
         btnText.innerText = "ログイン中...";
 
         signInWithPopup(auth, provider)
             .then((result) => {
-                console.log("ログイン成功:", result.user);
-                window.location.href = "menu.html";
+                const userEmail = result.user.email;
+
+                // メールアドレスのチェック
+                if (allowedEmails.includes(userEmail)) {
+                    console.log("アクセス許可:", userEmail);
+                    window.location.href = "menu.html";
+                } else {
+                    // 許可されていない場合、サインアウトさせてエラーを表示
+                    console.error("未登録のアドレス:", userEmail);
+                    signOut(auth).then(() => {
+                        alert("このメールアドレス（" + userEmail + "）は登録されていません。管理者に連絡してください。");
+                        loginBtn.disabled = false;
+                        btnText.innerText = "Gmailでログインして進む";
+                    });
+                }
             }).catch((error) => {
                 loginBtn.disabled = false;
                 btnText.innerText = "Gmailでログインして進む";
                 console.error("エラー:", error.message);
-                alert("ログインに失敗しました。Firebaseの設定でGoogleログインが有効になっているか確認してください。");
+                alert("ログインに失敗しました。");
             });
     });
 </script>
 
 </body>
 </html>
-
-
