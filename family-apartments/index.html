@@ -61,8 +61,10 @@
 
 function getMarkerScale() {
       const w = window.innerWidth;
+      const h = window.innerHeight;
+      
       // 【スマホ縦持ち：概ね幅430px以下】
-      if (w <= 430) return { apt: 0.35, user: 45 }; 
+      if (w <= 430 && h > w) return { apt: 0.35, user: 45 }; 
 
       // 【スマホ横持ち・小さめのタブレット：幅600px以下】
       if (w <= 600) return { apt: 0.18, user: 28 }; 
@@ -251,8 +253,27 @@ function getMarkerScale() {
 
       window.addEventListener('resize', () => {
         const s = getMarkerScale();
-        apartmentMarkerObjects.forEach(m => { const i = m.getIcon(); i.scale = s.apt; m.setIcon(i); });
-        if (userMarker) { const i = userMarker.getIcon(); i.scale = s.user; userMarker.setIcon(i); }
+        
+        // マンションアイコンの更新
+        apartmentMarkerObjects.forEach(m => { 
+          const i = m.getIcon(); 
+          i.scale = s.apt; 
+          m.setIcon(i); 
+        });
+        
+        // 現在地アイコンの更新
+        if (userMarker) { 
+          const i = userMarker.getIcon(); 
+          i.scale = s.user; 
+          userMarker.setIcon(i); 
+        }
+        
+        // ★追加：現在地の影（黒い円）も一緒に大きくする
+        if (shadowMarker) {
+          const i = shadowMarker.getIcon();
+          i.scale = s.user * 1.4; // 影は本体の1.4倍
+          shadowMarker.setIcon(i);
+        }
       });
     }
   </script>
