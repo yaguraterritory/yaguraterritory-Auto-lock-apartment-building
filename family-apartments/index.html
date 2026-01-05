@@ -11,7 +11,7 @@
     .map-title {
       position: absolute;
       top: 10px;
-      left: 50%;
+      left: 15px;
       transform: translateX(-50%);
       z-index: 1000;
 
@@ -19,26 +19,26 @@
       background: rgba(0, 123, 255, 0.98); 
       color: #ffffff;
       
-      padding: 16px 24px;
-      border-radius: 12px;
-      font-size: 20px;      /* スマホで読みやすい特大サイズ */
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 16px;      /* 右上に配置するため、少しサイズを調整 */
       
-      font-weight: 900;     /* 視認性の高い極太文字 */
+      font-weight: 900;
       box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-      width: 85%;           /* スマホ画面でどっしり配置 */
-      max-width: 450px;
+      width: auto;          /* 幅を自動（文字数に合わせる）に設定 */
+      max-width: 250px;
       text-align: center;
       letter-spacing: 0.5px;
       white-space: nowrap;
     }
 
-    /* PC・タブレット向けの調整 */
-    @media (min-width: 768px) {
+      /* スマホ・タブレット向けの調整（右上固定を維持） */
+    @media (max-width: 480px) {
       .map-title {
-        top: 20px;
-        font-size: 24px;
-        padding: 18px 36px;
-        width: auto;
+        font-size: 14px;    /* スマホでは少し小さくして邪魔にならないように */
+        padding: 10px 15px;
+        top: 10px;
+        right: 10px;
       }
     }
   </style>
@@ -62,7 +62,7 @@
 function getMarkerScale() {
       const w = window.innerWidth;
       const h = window.innerHeight;
-      
+
       // 【スマホ縦持ち：概ね幅430px以下】
       if (w <= 430 && h > w) return { apt: 0.35, user: 45 }; 
 
