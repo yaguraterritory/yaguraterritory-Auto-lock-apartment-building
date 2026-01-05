@@ -35,9 +35,12 @@
       transform: scale(0.95);
     }
 
+    /* 戻るアイコン（三角形）の調整 */
     .back-icon {
-      margin-right: 8px;
-      font-size: 20px; /* 矢印を大きく */
+      margin-right: 6px;
+      font-size: 14px;      /* 三角形は大きく見えやすいため少しサイズを調整 */
+      position: relative;
+      top: -1px;           /* 文字との上下中央を合わせるための微調整 */
     }
 
     /* スマホ（幅600px以下）でも十分な大きさを維持 */
@@ -87,7 +90,7 @@
 </head>
 <body>
   <a href="../menu.html" class="back-button">
-    <span class="back-icon">←</span> 戻る
+    <span class="back-icon">◀</span> 戻る
   </a>
   <div id="map"></div>
   <div class="map-title">ファミリー向けマンション</div>
