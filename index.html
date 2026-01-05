@@ -47,12 +47,18 @@
         }
         .btn-google img { width: 20px; margin-right: 12px; }
         .btn-google:disabled { background-color: #ddd; cursor: not-allowed; }
+
+        .mobile-br { display: none; }
+
+        @media (max-width: 600px) {
+            .mobile-br { display: inline; }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>矢倉会衆<br>オートロックマンション地図システム ユーザー登録</h1>
+    <h1>矢倉会衆<br><br class="mobile-br">オートロックマンション地図システム<br>ユーザー登録</h1>
 
     <button id="google-login-btn" class="btn-google">
         <img src="google-logo.png" alt="Google logo">
