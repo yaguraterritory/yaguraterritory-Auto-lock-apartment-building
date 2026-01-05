@@ -62,25 +62,28 @@
       const w = window.innerWidth;
       const h = window.innerHeight;
 
-      // 【スマホ縦持ち：幅500px以下 かつ 縦長画面】
+    // 【スマホ縦持ち：幅500px以下 かつ 縦長画面】
       if (w <= 500 && h > w) {
         return { 
-          apt: 0.45,   // 0.6からさらに下げてスッキリさせました
-          user: 40     // 55から40に下げて圧迫感を軽減
+          apt: 0.3,    // 0.45からさらに縮小。重なりを最小限にします
+          user: 25     // 40から25に縮小。現在地をスマートに表示します
         }; 
       }
 
       // 【スマホ横持ち・小型タブレット：幅900px以下】
       if (w <= 900) {
         return { 
-          apt: 0.3,    
-          user: 30 
+          apt: 0.25,   
+          user: 20 
         }; 
       }
       
       // 【PC・大型タブレット】
-      return { apt: 0.2, user: 30 };
-    } // ← ここの閉じカッコのズレを修正しました
+      return { 
+        apt: 0.1, 
+        user: 15 
+      };
+    }
 
     const apartments = [
       { name: "EL ORIENTE2", position: { lat: 35.0135221, lng: 135.9716834 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1fFXXiD0sLCDSXHcwuEA-6Ni0H75Mqn3E5XeouxUecH4/edit?usp=drive_link", active: true },
