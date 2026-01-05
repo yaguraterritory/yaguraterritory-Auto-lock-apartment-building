@@ -62,8 +62,8 @@
       const w = window.innerWidth;
       const h = window.innerHeight;
 
-      // 【スマホ縦持ち：幅500px以下 かつ 縦長画面】
-      if (w <= 500 && h > w) {
+      // 【スマホ縦持ち：幅600px以下 かつ 縦長画面】
+      if (w <= 600 && h > w) {
         return { 
           apt: 3.5,    // 0.8からさらに4倍以上（3.5）にアップ
           user: 80     // 45から80へ拡大。はっきりと見えるサイズに
