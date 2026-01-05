@@ -78,31 +78,32 @@
     const provider = new GoogleAuthProvider();
 
     // ★ここに許可するメールアドレスを追加してください
-    const allowedEmails = [
+    // 変数名を判定側と統一しました
+    const allowedUsers = {
         //長老
-        "植平宏樹 <hirokiuehira@gmail.com>",
-        "嶋林聡 <sou.goodnews@gmail.com>",
-        "冨岡恭行 <y.tomy1170@gmail.com>",
-        "山口三樹 <mikiymg1204@gmail.com>",
-        "福田高士 <mukoyama_takashi@yahoo.co.jp>",
-        "北村智志 <ai1kazoku4keei2@gmail.com>",
-        "藤原大樹 <bi.bi.bitter.mana.11@gmail.com>",
-        "坪内達郎 <yuzunotubo@yahoo.co.jp>",
-        "足立陽平 <youcyanmonth@gmail.com>",
-        "中西慎 <shintec.swear718@gmail.com>",
+        "hirokiuehira@gmail.com": "植平宏樹",
+        "sou.goodnews@gmail.com": "嶋林聡",
+        "y.tomy1170@gmail.com": "冨岡恭行",
+        "mikiymg1204@gmail.com": "山口三樹",
+        "mukoyama_takashi@yahoo.co.jp": "福田高士",
+        "ai1kazoku4keei2@gmail.com": "北村智志",
+        "bi.bi.bitter.mana.11@gmail.com": "藤原大樹",
+        "yuzunotubo@yahoo.co.jp": "坪内達郎",
+        "youcyanmonth@gmail.com": "足立陽平",
+        "shintec.swear718@gmail.com": "中西慎",
         //援助奉仕者
-        "山口佳夫 <yo_sioaji@icloud.com>",
-        "中西雅也 <nakanishi.masaya0228@gmail.com>",
-        "瀬川光也 <jw_segawa@yahoo.com>",
-        "榎並俊武 <jw.3330serena@gmail.com>",
-        "中村幸平 <koooo5912@gmail.com>",
+        "yo_sioaji@icloud.com": "山口佳夫",
+        "nakanishi.masaya0228@gmail.com": "中西雅也",
+        "jw_segawa@yahoo.com": "瀬川光也",
+        "jw.3330serena@gmail.com": "榎並俊武",
+        "koooo5912@gmail.com": "中村幸平",
         //区域部門サポーター
-        "中西順 <jun.nkns39@gmail.com>",
-        "山口幹太 <yamakan.0739@gmail.com>",
-        "中澤優美 <yumi.nakazawa112@gmail.com>",
+        "jun.nkns39@gmail.com": "中西順",
+        "yamakan.0739@gmail.com": "山口幹太",
+        "yumi.nakazawa112@gmail.com": "中澤優美",
         //開拓者
-        "植平裕子 <hiroko-andarina-165@hotmail.co.jp>",
-    ];
+        "hiroko-andarina-165@hotmail.co.jp": "植平裕子"
+    };
 
     const loginBtn = document.getElementById('google-login-btn');
     const btnText = loginBtn.querySelector('span');
@@ -115,13 +116,12 @@
             .then((result) => {
                 const userEmail = result.user.email;
 
-                // メールアドレスのチェック
-                if (allowedEmails.includes(userEmail)) {
-                    console.log("アクセス許可:", userEmail);
+                // allowedUsers という名前に統一して判定
+                if (userEmail in allowedUsers) {
+                    const userName = allowedUsers[userEmail];
+                    console.log(userName + "さん、アクセス許可:", userEmail);
                     window.location.href = "menu.html";
                 } else {
-                    // 許可されていない場合、サインアウトさせてエラーを表示
-                    console.error("未登録のアドレス:", userEmail);
                     signOut(auth).then(() => {
                         alert("このメールアドレス（" + userEmail + "）は登録されていません。管理者に連絡してください。");
                         loginBtn.disabled = false;
