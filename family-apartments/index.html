@@ -7,6 +7,44 @@
     body, html { margin:0; padding:0; height:100%; }
     #map { width:100%; height:100%; }
 
+    /* 戻るボタンのスタイル */
+    .back-button {
+      position: absolute;
+      top: 15px;
+      left: 15px;          /* 左上に配置 */
+      z-index: 1001;       /* 地図やタイトル(1000)より上に表示 */
+      
+      background: white;
+      color: #333;
+      text-decoration: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 14px;
+      
+      display: flex;
+      align-items: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      border: 1px solid #ccc;
+    }
+
+    .back-button:active {
+      background: #f0f0f0;
+    }
+
+    .back-icon {
+      margin-right: 5px;
+      font-size: 18px;
+    }
+
+    /* スマホでタイトルと重なるのを防ぐ（タイトルの右配置に合わせて調整） */
+    @media (max-width: 600px) {
+      .back-button {
+        padding: 8px 12px;
+        font-size: 13px;
+      }
+    }
+
     /* タイトルを右上に配置し、はみ出しを防止 */
     .map-title {
       position: absolute;
@@ -45,6 +83,9 @@
 </style>
 </head>
 <body>
+  <a href="../menu.html" class="back-button">
+    <span class="back-icon">←</span> 戻る
+  </a>
   <div id="map"></div>
   <div class="map-title">ファミリー向けマンション</div>
 
