@@ -146,23 +146,31 @@
     }
 
     const apartments = [
+      //01-青地町
       { name: "EL ORIENTE2", position: { lat: 35.0135221, lng: 135.9716834 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1fFXXiD0sLCDSXHcwuEA-6Ni0H75Mqn3E5XeouxUecH4/edit?usp=drive_link", active: true },
       { name: "アルタ青地ビュー", position: { lat: 35.0083318, lng: 135.9750119 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1wPD_lAmSwl048ySvOfsXt2YDT4g_Y4A1qavWODyvmQE/edit?usp=drive_link", active: true },
       { name: "ガーデンハイツヤマキ", position: { lat: 35.0042782, lng: 135.9707617 }, sheetUrl: "https://docs.google.com/spreadsheets/d/11to3i5Vp4oryYHFgv_HjEyBWTELm0dIX5F-wS3-wskc/edit?usp=drive_link", active: true },
       { name: "クランボナール", position: { lat: 35.0040314, lng: 135.9714115 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1DjAYqQJinkgsuvS-Zcktn5F_vWlpcETuH-VAhMZgnUU/edit?usp=drive_link", active: true },
       { name: "シルクトレーテA棟", position: { lat: 35.0073924, lng: 135.9740855 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1Z8o8TeEruSnAPGF2cz8eHAwXga83YiKR7hjiIFv6I44/edit?usp=drive_link", active: true },
       { name: "シルクトレーテB棟", position: { lat: 35.0075715, lng: 135.974253 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1Y3VBZdorqjHs5qvgFj-HVSfZ1xljD29fUKFh22XVtok/edit?usp=drive_link", active: true },
+      //02-岡本町(該当なし)
+      //03-追分
       { name: "Baum Dorf", position: { lat: 35.0061945, lng: 135.9606194 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1k5eGzP9Q5y7FOKatjdDF0nsMKI70no57Gwjk_n1QVt8/edit?usp=drive_link", active: true },
       { name: "デン・エデン", position: { lat: 35.0069946, lng: 135.9663906 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1JYeseuW3XgNATa02zqmfFfMMTCN6pv_UrtSs6xHKHfE/edit?usp=drive_link", active: true },
+      //04-追分南
       { name: "シャーメゾンシルク", position: { lat: 35.0006301, lng: 135.9602304 }, sheetUrl: "https://docs.google.com/spreadsheets/d/17JkS4L9lBr00t-3qHFM7PbV4qTlpVRh4q04f0-HpgQI/edit?usp=drive_link", active: true },
       { name: "ミニオン一期一会", position: { lat: 34.9911528, lng: 135.9644665 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1C-3EfysaaJ3Dc1XQs_YmMlqUz2EQSZZGd4CH75X2_aY/edit?usp=drive_link", active: true },
+      //05-矢倉
       { name: "グランツ21", position: { lat: 35.0121479, lng: 135.9545661 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1tGIFJe2Zu41FfSr_ovIN9ztkV1ksaJcwQLB6wdENLYk/edit?usp=drive_link", active: true },
       { name: "ルミエール23", position: { lat: 35.0102764, lng: 135.9568417 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1o91Gm5xHU_Mwc_avjL8X8jZnW3p-PbAeaqE7SDXzU_U/edit?usp=drive_link", active: true },
+      //06-東矢倉
       { name: "Beacon Hill", position: { lat: 35.0052714, lng: 135.9562878 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1t-oHZ-qtwQRDFP2h9ZcPV02WWAfNPlDdlEKTx09Mgdg/edit?usp=drive_link", active: true },
       { name: "T・K矢倉", position: { lat: 35.0081852, lng: 135.9567579 }, sheetUrl: "https://docs.google.com/spreadsheets/d/16ydzVLR0ITFKdmbUDqruJwri2JkHY43s4xS_mPtS-n4/edit?usp=drive_link", active: true },
       { name: "グランドール南草津（夜）", position: { lat: 34.9988134, lng: 135.9556927 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1UULv7-usq5FARW_5sHf8-JDb08wSKeHoL-bLd1byu0U/edit?usp=drive_link", active: true },
+      //07-西矢倉
       { name: "エムティエス・古川", position: { lat: 35.0107368, lng: 135.9513894 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1nd9cfDZ_xrmRpE-U-MXf1mYutgc3k_0X2V7BDU9eFoM/edit?usp=drive_link", active: true },
       { name: "ラ・ルース一番館（レジデンス南草津）", position: { lat: 35.0094519, lng: 135.951209 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1E95yS7ioGm6-0Le8wwtagBG-66bGKvG87iZPs9Uf5-k/edit?usp=drive_link", active: true },
+      //08-草津
       { name: "Casa raffine草津", position: { lat: 35.0151292, lng: 135.9645046 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1m4m8h38AvbpoUG5HQnwuJ48wCz_0_9AhX9AcD4Msc50/edit?usp=drive_link", active: true },
       { name: "Univaly Granvia8", position: { lat: 35.0144335, lng: 135.9542681 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1osRRkvEggcPCTk6ekgo0P0N8QyRWYgKY2lFNk-Hxe8E/edit?usp=drive_link", active: true },
       { name: "アスリス", position: { lat: 35.013938, lng: 135.9537055 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1VEAgmMdwksAspOc2OtUOBS4D4oThkmrH4CnPieieruI/edit?usp=drive_link", active: true },
@@ -171,6 +179,7 @@
       { name: "ココスモ草津Ⅱ (夜)", position: { lat: 35.0176379, lng: 135.9587089 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1lXneTb9wbrFJdMxuLgrnWV1k5OKfvvt-paiqSK5bplk/edit?usp=drive_link", active: true },
       { name: "リベルテ草津", position: { lat: 35.018516, lng: 135.9591753 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1_m6rkEhG_xr2BvVzgObUTuXZdcb08LL0XQEdkekwCto/edit?usp=drive_link", active: true },
       { name: "草津パークホームズ", position: { lat: 35.0122945, lng: 135.9559939 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1GzoYd8o3zq5ykqf_eYWAL3qkAZQAccDt9J4j7DFgZPc/edit?usp=drive_link", active: true },
+      //09-南草津
       { name: "Brillia南草津駅前（夜）", position: { lat: 35.0033092, lng: 135.9462489 }, sheetUrl: "https://docs.google.com/spreadsheets/d/10NTsP0d86RR0lZrVxCHys0m74J83CtlVaWap3sjKl-w/edit?usp=drive_link", active: true },
       { name: "Chum（チャム）", position: { lat: 35.0023981, lng: 135.9424747 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1G5taBW_tUrnc8sH6TcDDsLCXBOVpQlsARtpfdZBpCHY/edit?usp=drive_link", active: true },
       { name: "Grand Cuore グランクオーレ", position: { lat: 35.0035923, lng: 135.9391534 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1vpY5rwTuiT6-FAc_A1V5kbyYR6mdvb5PiJ6ZrhZZG3I/edit?usp=drive_link", active: true },
@@ -188,6 +197,7 @@
       { name: "レジェ南草津Ⅱ", position: { lat: 35.0032446, lng: 135.9440146 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1rK9Rr4dykUo6pmmyEDKE31luisiGHQiqpW4XQ1lRZtc/edit?usp=drive_link", active: true },
       { name: "南笠ハイツ", position: { lat: 34.9949134, lng: 135.9388712 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1cVj98XZFXwEZ7GOei7EwNUqDoRXUoIby0BxXyNzjoWY/edit?usp=drive_link", active: true },
       { name: "利兵衛 壱番館", position: { lat: 35.0057917, lng: 135.9426408 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1hJLz9dnuqjVyd-BtlyJJaLBAWBGD8GWF72CBPFlCEgQ/edit?usp=drive_link", active: true },
+      //10-東草津
       { name: "EL ORIENTE", position: { lat: 35.0137968, lng: 135.9714161 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1HepljRa8BuzefsprwQZSJH6o0I7CyadMqoAws5GOLFo/edit?usp=drive_link", active: true },
       { name: "アコール東草津", position: { lat: 35.0157344, lng: 135.9690205 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1wLwjORPfoqZeSEJSxQY9UyXZ5vQ6AClQV01IFK3QavU/edit?usp=drive_link", active: true },
       { name: "パルト・プロムナードⅠ", position: { lat: 35.0099677, lng: 135.9655099 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1PcPVOsVz74IC07Mw0W8JEB77nF4uXXhS_PlAYLoUQhE/edit?usp=drive_link", active: true },
