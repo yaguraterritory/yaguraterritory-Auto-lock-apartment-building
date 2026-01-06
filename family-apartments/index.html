@@ -183,14 +183,15 @@
       { name: "パルト・プロムナードⅡ", position: { lat: 35.0100723, lng: 135.9654017 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1g16_levlWN8ylGeqR3lmHddeC8vL_DDbbG6_JoJNfks/edit?usp=drive_link", active: true },
     ];
 
-    function convertSheetToCsvUrl(sheetUrl) {
-      const m = sheetUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
-      if (!m) return null;
-      const sheetId = m[1];
-      const gidMatch = sheetUrl.match(/gid=([0-9]+)/);
-      const gid = gidMatch ? gidMatch[1] : DEFAULT_GID; 
-      return `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
-    }
+      function convertSheetToCsvUrl(sheetUrl) {
+        const m = sheetUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+        if (!m) return null;
+        const sheetId = m[1];
+        
+        // 特定のGIDを指定せず、スプレッドシート全体のデータをCSVとして書き出す設定に変更
+        // 後の処理で「部屋一覧」という名前のシートを特定します
+        return `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent("部屋一覧")}`;
+      }
 
       async function fetchVisitStatus(apt) {
       if (!apt.active || !apt.sheetUrl) return { color: "default" };
