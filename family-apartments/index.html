@@ -199,25 +199,30 @@
         const res = await fetch(convertSheetToCsvUrl(apt.sheetUrl));
         const text = await res.text();
         
-        // 改行コードを統一して行ごとに分割
-        const rows = text.split(/\r?\n/).map(r => r.split(","));
+        // CSVの各行をパース（カンマで分割。引用符がある場合も考慮）
+        const rows = text.split(/\r?\n/).map(row => {
+          // 引用符 " で囲まれた値を考慮して分割
+          return row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(cell => cell.replace(/^"|"$/g, '').trim());
+        });
         
         let totalRooms = 0;
         let enteredCount = 0;
 
-        // 4行目（インデックス 3）からスキャン開始
-        for (let i = 3; i < rows.length; i++) {
+        // 2行目以降（ヘッダーを除いた実データ部分）をスキャン
+        // ※ gviz/tq を使うとインデックスが変わる可能性があるため、全体を確認
+        for (let i = 0; i < rows.length; i++) {
           const row = rows[i];
-          if (!row || row.length < 2) continue; // 行が正しくない場合はスキップ
+          if (!row || row.length < 2) continue;
 
-          const room = row[0] ? row[0].trim() : "";
-          const visit = row[1] ? row[1].trim() : "";
+          const room = row[0]; // 1列目: 部屋番号
+          const visit = row[1]; // 2列目: 訪問状況
 
-          // 部屋番号が入力されている行をカウント対象とする
-          if (room !== "") {
+          // 【重要】部屋番号が「数字のみ」または「号室」などの文字を含む、
+          // かつ明らかにシステム的なヘッダーや空行でない場合のみカウント
+          if (room && room !== "" && !room.includes("部屋番号") && !room.includes("table")) {
             totalRooms++;
-            // 訪問状況（2列目）に何らかの文字が入っていれば「入力済み」とみなす
-            if (visit !== "") {
+            // 訪問状況に文字が入っていればカウント
+            if (visit && visit !== "") {
               enteredCount++;
             }
           }
@@ -226,8 +231,9 @@
         if (totalRooms === 0) return { color: "default" };
 
         const ratio = enteredCount / totalRooms;
-        console.log(`${apt.name}: ${enteredCount}/${totalRooms} (${(ratio * 100).toFixed(1)}%)`); // 動作確認用ログ
+        console.log(`${apt.name}: ${enteredCount}/${totalRooms} (${(ratio * 100).toFixed(1)}%)`);
 
+        // 判定ロジック
         if (ratio >= 1.0) return { color: "red" };
         if (ratio >= 0.5) return { color: "yellow" };
         return { color: "default" };
