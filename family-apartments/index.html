@@ -212,20 +212,44 @@
     }
 
     async function addApartmentMarkers() {
-      const statusResults = await Promise.all(apartments.map(apt => fetchVisitStatus(apt)));
       const scales = getMarkerScale();
-      apartments.forEach((apt, i) => {
-        let fillColor = !apt.active ? "#808080" : (statusResults[i].color === "red" ? "#E53935" : (statusResults[i].color === "yellow" ? "#FBC02D" : "#00A0A0"));
+      
+      apartments.forEach((apt) => {
+        // 1. まずは「デフォルト色（青緑）」で即座にマーカーを作成して表示
         const marker = new google.maps.Marker({
           position: apt.position,
           map: map,
           title: apt.name,
           icon: {
-            path: "M1662.11,944.38c0-306.13-248.18-554.32-554.32-554.32-29.74,0-58.89,2.36-87.35,6.92-264.64,41.86-466.93,271.01-466.93,547.4,0,85.15,19.19,165.84,53.57,237.93,15.53,32.7,34.27,63.56,55.63,92.33h-.11l445.23,590.94,441.56-586.19h-.07c70.74-93.08,112.79-209.13,112.79-335.02ZM1107.8,1193.08c-99.14,0-184.7-57.99-224.65-141.94-15.45-32.36-24.06-68.57-24.06-106.77,0-124.05,90.76-226.86,209.54-245.64,12.76-2.06,25.85-3.11,39.17-3.11,137.37,0,248.75,111.37,248.75,248.75s-111.37,248.71-248.75,248.71Z",
-            fillColor: fillColor, fillOpacity: 0.95, strokeColor: "white", strokeWeight: 2, scale: scales.apt, anchor: new google.maps.Point(831, 1535)
+            // 軽量化したピン型パス（計算負荷が低い）
+            path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+            fillColor: "#00A0A0", // デフォルト色
+            fillOpacity: 1.0,
+            strokeColor: "white",
+            strokeWeight: 1.5,
+            scale: scales.apt * 70, // パスが小さいため、係数を掛けて調整
+            anchor: new google.maps.Point(12, 22)
           }
         });
-        if (apt.active && apt.sheetUrl) marker.addListener("click", () => window.open(apt.sheetUrl, "_blank"));
+
+        // 2. クリックイベントは即座に登録（データ読み込みを待たずに開ける）
+        if (apt.active && apt.sheetUrl) {
+          marker.addListener("click", () => window.open(apt.sheetUrl, "_blank"));
+          
+          // 3. 非同期で個別にステータス（スプレッドシート）を確認
+          // 完了したピンから順次、色を更新していく
+          fetchVisitStatus(apt).then(result => {
+            let newColor = !apt.active ? "#808080" : 
+                          (result.color === "red" ? "#E53935" : 
+                          (result.color === "yellow" ? "#FBC02D" : "#00A0A0"));
+            
+            const icon = marker.getIcon();
+            if (icon.fillColor !== newColor) {
+              icon.fillColor = newColor;
+              marker.setIcon(icon); // 色だけを更新
+            }
+          });
+        }
         apartmentMarkerObjects.push(marker);
       });
     }
