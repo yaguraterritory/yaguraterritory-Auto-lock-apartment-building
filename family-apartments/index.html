@@ -352,16 +352,19 @@
       // リサイズ時にアイコンを即座に更新
       window.addEventListener('resize', () => {
         const s = getMarkerScale();
+
         apartmentMarkerObjects.forEach(m => { 
           const i = m.getIcon(); 
-          i.scale = s.apt; 
+          i.scale = s.apt * APT_SCALE_FACTOR;  // ← 修正ポイント
           m.setIcon(i); 
         });
+
         if (userMarker) { 
           const i = userMarker.getIcon(); 
           i.scale = s.user; 
           userMarker.setIcon(i); 
         }
+
         if (shadowMarker) {
           const i = shadowMarker.getIcon();
           i.scale = s.user * 1.4;
