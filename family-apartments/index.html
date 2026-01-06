@@ -192,23 +192,48 @@
       return `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
     }
 
-    async function fetchVisitStatus(apt) {
+      async function fetchVisitStatus(apt) {
       if (!apt.active || !apt.sheetUrl) return { color: "default" };
       try {
         const res = await fetch(convertSheetToCsvUrl(apt.sheetUrl));
         const text = await res.text();
-        const rows = text.replace(/\r/g, "").trim().split("\n").map(r => r.split(","));
-        let totalRooms = 0, enteredCount = 0;
+        
+        // 改行コードを統一して行ごとに分割
+        const rows = text.split(/\r?\n/).map(r => r.split(","));
+        
+        let totalRooms = 0;
+        let enteredCount = 0;
+
+        // 4行目（インデックス 3）からスキャン開始
         for (let i = 3; i < rows.length; i++) {
-          const room = rows[i][0]?.trim(), visit = rows[i][1]?.trim();
-          if (!room && !visit) break; 
-          totalRooms++; if (visit) enteredCount++;
+          const row = rows[i];
+          if (!row || row.length < 2) continue; // 行が正しくない場合はスキップ
+
+          const room = row[0] ? row[0].trim() : "";
+          const visit = row[1] ? row[1].trim() : "";
+
+          // 部屋番号が入力されている行をカウント対象とする
+          if (room !== "") {
+            totalRooms++;
+            // 訪問状況（2列目）に何らかの文字が入っていれば「入力済み」とみなす
+            if (visit !== "") {
+              enteredCount++;
+            }
+          }
         } 
+
+        if (totalRooms === 0) return { color: "default" };
+
         const ratio = enteredCount / totalRooms;
+        console.log(`${apt.name}: ${enteredCount}/${totalRooms} (${(ratio * 100).toFixed(1)}%)`); // 動作確認用ログ
+
         if (ratio >= 1.0) return { color: "red" };
         if (ratio >= 0.5) return { color: "yellow" };
         return { color: "default" };
-      } catch (e) { return { color: "default" }; }
+      } catch (e) { 
+        console.error(`${apt.name} のデータ取得失敗:`, e);
+        return { color: "default" }; 
+      }
     }
 
     async function addApartmentMarkers() {
