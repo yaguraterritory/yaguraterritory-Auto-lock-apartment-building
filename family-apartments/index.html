@@ -17,16 +17,22 @@
       background: #007bff; /* 青色の背景に変更して目立たせる */
       color: white;        /* 文字を白に */
       text-decoration: none;
-      padding: 12px 20px;  /* サイズを拡大 */
-      border-radius: 50px; /* 角を丸くしてボタン感を強調 */
+      padding: 14px 24px;  /* サイズを拡大 */
+      border-radius: 12px; /* 角を丸くしてボタン感を強調 */
       font-weight: bold;
-      font-size: 16px;     /* 文字サイズをアップ */
+      font-size: 18px;     /* 文字サイズをアップ */
       
       display: flex;
       align-items: center;
       box-shadow: 0 4px 12px rgba(0,0,0,0.3); /* 影を強くして浮き上がらせる */
       border: 2px solid white; /* 白い枠線を追加 */
       transition: transform 0.2s; /* タップ時の動き */
+    }
+
+    .back-button:hover {
+      background: #3399ff;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+      transform: none;   /* ← 動かさない */
     }
 
     /* タップ・クリック時の反応 */
@@ -37,8 +43,8 @@
 
     /* 戻るアイコン（三角形）の調整 */
     .back-icon {
-      margin-right: 6px;
-      font-size: 14px;      /* 三角形は大きく見えやすいため少しサイズを調整 */
+      margin-right: 8px;
+      font-size: 16px;      /* 三角形は大きく見えやすいため少しサイズを調整 */
       position: relative;
       top: -1px;           /* 文字との上下中央を合わせるための微調整 */
     }
@@ -56,44 +62,49 @@
       position: absolute;
       top: 15px;
       right: 15px;
-      left: auto;
-      transform: none;
       z-index: 1000;
 
-      background: rgba(0, 123, 255, 0.98); 
-      color: #ffffff;
-      padding: 10px 15px;
-      border-radius: 8px;
-      
-      font-size: 16px;      
-      font-weight: 900;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-      
-      width: auto;
+      background: rgba(0, 0, 0, 0.55); /* ← グレー系で控えめに */
+      color: #f1f1f1;
+
+      padding: 8px 14px;              /* ← 少し小さく */
+      border-radius: 6px;
+
+      font-size: 14px;                /* ← 文字を小さめに */
+      font-weight: 500;               /* ← 太字をやめる */
+      box-shadow: none;               /* ← 影を消す */
+
       max-width: 50%;
       text-align: center;
-      white-space: normal;
-      word-wrap: break-word; 
     }
 
     /* PC・タブレット向けの調整 */
     @media (min-width: 768px) {
       .map-title {
-        top: 20px;
         right: 20px;
         font-size: 20px;
         padding: 15px 25px;
         max-width: 400px;
       }
+      .map-ui {
+      top: 20px;
+      }
     }
+
+    .map-ui {
+    position: absolute;
+    top: 15px;
+    z-index: 1000;
+    }
+
 </style>
 </head>
 <body>
-  <a href="../menu.html" class="back-button">
+  <a href="../menu.html" class="back-button map-ui">
     <span class="back-icon">◀</span> 戻る
   </a>
   <div id="map"></div>
-  <div class="map-title">ファミリー向けマンション</div>
+  <div class="map-title map-ui">ファミリー向けマンション</div>
 
 <script>
     const DEFAULT_GID = "1854135294";
