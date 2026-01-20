@@ -1,1 +1,419 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>単身者向けオートロックマンション地図</title>
+<style>
+    body, html { margin:0; padding:0; height:100%; }
+    #map { width:100%; height:100%; }
 
+    /* 戻るボタンのスタイル：サイズアップと目立つ配色へ変更 */
+    .back-button {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      z-index: 1001;
+      
+      background: #007bff; /* 青色の背景に変更して目立たせる */
+      color: white;        /* 文字を白に */
+      text-decoration: none;
+      padding: 14px 24px;  /* サイズを拡大 */
+      border-radius: 12px; /* 角を丸くしてボタン感を強調 */
+      font-weight: bold;
+      font-size: 18px;     /* 文字サイズをアップ */
+      
+      display: flex;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3); /* 影を強くして浮き上がらせる */
+      border: 2px solid white; /* 白い枠線を追加 */
+      transition: transform 0.2s; /* タップ時の動き */
+    }
+
+    .back-button:hover {
+      background: #3399ff;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+      transform: none;   /* ← 動かさない */
+    }
+
+    /* タップ・クリック時の反応 */
+    .back-button:active {
+      background: #0056b3;
+      transform: scale(0.95);
+    }
+
+    /* 戻るアイコン（三角形）の調整 */
+    .back-icon {
+      margin-right: 8px;
+      font-size: 16px;      /* 三角形は大きく見えやすいため少しサイズを調整 */
+      position: relative;
+      top: -1px;           /* 文字との上下中央を合わせるための微調整 */
+    }
+
+    /* スマホ（幅600px以下）でも十分な大きさを維持 */
+    @media (max-width: 600px) {
+      .back-button {
+        padding: 10px 18px;
+        font-size: 15px;
+      }
+    }
+
+    /* タイトルを右上に配置し、はみ出しを防止 */
+    .map-title {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      z-index: 1000;
+
+      background: rgba(0, 0, 0, 0.55); /* ← グレー系で控えめに */
+      color: #f1f1f1;
+
+      padding: 8px 14px;              /* ← 少し小さく */
+      border-radius: 6px;
+
+      font-size: 14px;                /* ← 文字を小さめに */
+      font-weight: 500;               /* ← 太字をやめる */
+      box-shadow: none;               /* ← 影を消す */
+
+      max-width: 50%;
+      text-align: center;
+    }
+
+    /* PC・タブレット向けの調整 */
+    @media (min-width: 768px) {
+      .map-title {
+        right: 20px;
+        font-size: 20px;
+        padding: 15px 25px;
+        max-width: 400px;
+      }
+      .map-ui {
+      top: 20px;
+      }
+    }
+
+    .map-ui {
+    position: absolute;
+    top: 15px;
+    z-index: 1000;
+    }
+
+</style>
+</head>
+<body>
+  <a href="../menu.html" class="back-button map-ui">
+    <span class="back-icon">◀</span> 戻る
+  </a>
+  <div id="map"></div>
+  <div class="map-title map-ui">単身者向けマンション</div>
+
+<script>
+    const DEFAULT_GID = "1854135294";
+    let map;
+    let apartmentMarkerObjects = [];
+    let userMarker = null;
+    let shadowMarker = null;
+
+    const INITIAL_CENTER = { lat: 35.012, lng: 135.965 };
+
+    // アイコンサイズを決定する関数
+    function getMarkerScale() {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+
+      // 【スマホ・小型デバイス判定】
+      // 縦長判定 (h > w) を削除し、幅 768px 以下なら一律スマホ用を適用
+      if (w <= 768) {
+        return { 
+          apt: 0.1,
+          user: 20     
+        }; 
+      }
+
+      // 【中型タブレット・スマホ横持ち】
+      if (w <= 1024) {
+        return { 
+          apt: 0.05,
+          user: 15 
+        }; 
+      }
+      
+      // 【PC・大型タブレット】
+      // 密集地でも道路がしっかり見えるように限界まで小さく設定
+      return { 
+        apt: 0.03,     // 0.06から半減（極小）
+        user: 8        // 10からさらに縮小
+      };
+    }
+
+    const apartments = [
+      //01-AOJI
+      { name: "エスペランツ琵琶湖", position: { lat: 35.0051359, lng: 135.9730057 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1TdiM6GPLCYaT70wioUzGB5JVYHq29VRdtGT0pc_N208/edit?usp=drive_link", active: true },
+      { name: "カントリーレジデンス草津", position: { lat: 35.0032152, lng: 135.9868715 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1d1x0M27dR6ITYP2erOM_GaOR1ysIkbX-Mcr4KUhl8CY/edit?usp=drive_link",  active: true },
+      { name: "コンフォート太陽", position: { lat: 35.0064726, lng: 135.9735742 }, sheetUrl: "https://docs.google.com/spreadsheets/d/1EiqPg7YuxxafSp3qADC1_91UomIPsGyjKJlRZEuez4k/edit?usp=drive_link",  active: true },
+      { name: "サンクリエート ハヤシ", position: { lat: 35.0084387, lng: 135.9759318 }, sheetUrl: "https://docs.google.com/spreadsheets/d/12cqYvrOSa0VV3GLSZ9g_XoGeDZHmg0-CFKk7CTEhH5g/edit?usp=drive_link", active: true },
+      //02-OKAMOTO
+      { name: "アンテヴォルテ", position: { lat: 34.9939858, lng: 135.9793737 }, sheeturl: "https://docs.google.com/spreadsheets/d/18p7ZaQ3jKCytbAgh8YCwIKS4N7bx0UPol5SqK-3-j6I/edit?usp=drive_link", active: true },
+      { name: "グランディール若草", position: { lat: 34.9906314, lng: 135.973646 }, sheeturl: "https://docs.google.com/spreadsheets/d/1q9O8ul1CrHawfC9B_O5ew3YugqgWlUA6UHsnFUEoxow/edit?usp=drive_link", active: true },
+      { name: "グリーンロード山手", position: { lat: 34.9908274, lng: 135.9714285 }, sheeturl: "https://docs.google.com/spreadsheets/d/1VGkd_UuhEHkKWuyckR0dJz8aLwSidLnLzfnVXEfDIg0/edit?usp=drive_link", active: true },
+      { name: "グリーンロード山手Ⅱ", position: { lat: 34.9909662, lng: 135.9718289 }, sheeturl: "https://docs.google.com/spreadsheets/d/1VGkd_UuhEHkKWuyckR0dJz8aLwSidLnLzfnVXEfDIg0/edit?usp=drive_link", active: true },
+      { name: "ビアンクール", position: { lat: 34.9896603, lng: 135.9663392 }, sheeturl: "https://docs.google.com/spreadsheets/d/1FB5dxOg6-mQW8UYa4K6dPo2-dN4EiNxpTEAXsCgQvkI/edit?usp=drive_link", active: true },
+      //03-OIWAKE
+      { name: "DESIGNSQUARE AN", position: { lat: 35.0022602, lng: 135.9635991 }, sheeturl: "https://docs.google.com/spreadsheets/d/1IMDWPTmWzBbU6jhtY-Egl-wmVrJb4ykW8A4o1qg5hvA/edit?usp=drive_link", active: true },
+      { name: "Prendreかがやき", position: { lat: 34.9940884, lng: 135.9650347 }, sheeturl: "https://docs.google.com/spreadsheets/d/19dEI8C8_CMWxr-578-_cpQKiXiNgEFJTsHs76Jn9wqU/edit?usp=drive_link", active: true },
+      { name: "sundance", position: { lat: 35.0052489, lng: 135.9648684 }, sheeturl: "https://docs.google.com/spreadsheets/d/15rBhPLi4DlwzBwrBPWeTP1xl2OHmahc2m_jrn24Paoo/edit?usp=drive_link", active: true },
+      { name: "エスポワールNAKAJIMA", position: { lat: 35.0015408, lng: 135.9626654 }, sheeturl: "https://docs.google.com/spreadsheets/d/1xnH7TFWMRj0BDcaaa3NR6W3aaTRXUqx5IRBbWE9CgcI/edit?usp=drive_link", active: true },
+      { name: "シャンドフルール竹村", position: { lat: 35.0063598, lng: 135.9666278 }, sheeturl: "https://docs.google.com/spreadsheets/d/1gxP-BR9FD4eH-thbhT6dzXOaV28sV2xnb3I4p0_dn5Y/edit?usp=drive_link", active: true },
+      { name: "シャンポールU", position: { lat: 35.0061796, lng: 135.9616011 }, sheeturl: "https://docs.google.com/spreadsheets/d/1ExNj4SQ7IK57C1E9ZwElDUzeqeffgrhgOM3Jw_1ih94/edit?usp=drive_link", active: true },
+      { name: "ベルレーブ", position: { lat: 35.0067364, lng: 135.9608802 }, sheeturl: "https://docs.google.com/spreadsheets/d/1IBgwxllNiTbrQgaDtQK0oLCYNHscd_VmLXGwy-Zmsv4/edit?usp=drive_link", active: true },
+      { name: "草津ロイヤルマンション", position: { lat: 35.0065419, lng: 135.9614209 }, sheeturl: "https://docs.google.com/spreadsheets/d/1togytCjmGCR-EVoWkhqyYNvOBbI3xbUr8cneI5coCWg/edit?usp=drive_link", active: true },
+      //04-oiwakeminami
+      { name: "GL Plus HIGASHIYAGURA", position: { lat: 35.0032095, lng: 135.957249 }, sheeturl: "https://docs.google.com/spreadsheets/d/1Tv4e8Y6bitfcomBH_znD3qA0Zh_SK1vzphEH9JrLFCw/edit?usp=drive_link", active: true },
+      { name: "LILAC", position: { lat: 34.9990835, lng: 135.9585691 }, sheeturl: "https://docs.google.com/spreadsheets/d/1SICmY1qjQeZdkJKDhqpr1vI85atnjUq-yeZ0Use_zrk/edit?usp=drive_link", active: true },
+      { name: "LILACⅡ", position: { lat: 34.9988131, lng: 135.9591681 }, sheeturl: "https://docs.google.com/spreadsheets/d/1KY7ctxFrPHXtcNISknAPHU3a0hr55SQPrIytJda__c0/edit?usp=drive_link", active: true },
+      { name: "Reveかがやき", position: { lat: 34.9925608, lng: 135.9641142 }, sheeturl: "https://docs.google.com/spreadsheets/d/1IQdGwqUUyhVOdr7pOkWhm1vI6QUGKZOdPWxtLGh-4oU/edit?usp=drive_link", active: true },
+      { name: "ヴィラ・カンパーニュ", position: { lat: 34.9965591, lng: 135.9585019 }, sheeturl: "https://docs.google.com/spreadsheets/d/15Viz5HcWIwibNP5Yr2n1Z9tt5Di0AwdyPNm_oH7UqHM/edit?usp=drive_link", active: true },
+      { name: "ヴェル・ベルビィW・W", position: { lat: 34.996422, lng: 135.9585818 }, sheeturl: "https://docs.google.com/spreadsheets/d/1ij5FFS74gLQ_K-6iNV6DvckI286yL9wZL39CW9HTyjM/edit?usp=drive_link", active: true },
+      { name: "クオーレ南草津", position: { lat: 35.000245, lng: 135.960011 }, sheeturl: "https://docs.google.com/spreadsheets/d/1KAojEnfuPLOzb8WWtDoxKpfu34bMr2EDf3CRQiCdtsA/edit?usp=drive_link", active: true },
+      { name: "ステラマリスⅡ", position: { lat: 34.9969532, lng: 135.9633582 }, sheeturl: "https://docs.google.com/spreadsheets/d/1CFBBWozMVZNG6W8APJ-ytxG__rEKop7NdHjwOTHmvWA/edit?usp=drive_link", active: true },
+      { name: "メゾンエスプリ", position: { lat: 34.9999058, lng: 135.9589873 }, sheeturl: "https://docs.google.com/spreadsheets/d/19g8IBb6cNIwFq-QQDgN2sr-g-xwuGjY18Vv67ocEpSE/edit?usp=drive_link", active: true },
+      { name: "リベルタ南草津（夜）", position: { lat: 34.991212, lng: 135.9691232 }, sheeturl: "https://docs.google.com/spreadsheets/d/1cvmPXLjedJBfaUGQrARa-BqUbI8qa6IOm9okODBrQj0/edit?usp=drive_link", active: true },
+      //05-yagura
+      { name: "GRAND SOLEIL Ⅲ", position: { lat: 35.0050454, lng: 135.9526513 }, sheeturl: "https://docs.google.com/spreadsheets/d/1lyx2ASwuLqm_9KI-QdSYT9pA-BBHzW9FBcGLpUmbOAY/edit?usp=drive_link", active: true },
+      { name: "SERENO機友", position: { lat: 35.0094772, lng: 135.9563914 }, sheeturl: "https://docs.google.com/spreadsheets/d/1oPfW_W6yfPObYrpIWVsOJwShUJoYtq19M1jeAXpXl68/edit?usp=drive_link", active: true },
+      { name: "UCD-ARROW", position: { lat: 35.0111431, lng: 135.9538677 }, sheeturl: "https://docs.google.com/spreadsheets/d/1vzI6UztRHQMFWrHbM64WBHUSFNe-ClkEZdQYdW2ymGk/edit?usp=drive_link", active: true },
+      { name: "エルミナリゾート南草津", position: { lat: 35.0040774, lng: 135.9517339 }, sheeturl: "https://docs.google.com/spreadsheets/d/1ivoxc09dl29zQyn6N3zsAcRO3a3htKa3L2sB4J69K34/edit?usp=drive_link", active: true },
+      { name: "コンフォール・M", position: { lat: 35.0080278, lng: 135.9547185 }, sheeturl: "https://docs.google.com/spreadsheets/d/1ETCly06XlDuOkQj4zF4L6jw6pwetFDnyobEileu1AVA/edit?usp=drive_link", active: true },
+      { name: "サワラビヨツバ", position: { lat: 35.005226, lng: 135.9521304 }, sheeturl: "https://docs.google.com/spreadsheets/d/11z8I0TPQX5b3aEOFfhL5d0zuRr7YZ_LZlA9KsjBVs20/edit?usp=drive_link", active: true },
+      { name: "リヴィエール・ベルジュ", position: { lat: 35.0105803, lng: 135.9569152 }, sheeturl: "https://docs.google.com/spreadsheets/d/1jqnKKeLNcj9EnVnA3p6VrmcxZ-UXNjg_eLJ0yJFmT-k/edit?usp=drive_link", active: true },
+      { name: "レゾネイド", position: { lat: 35.0086504, lng: 135.9534451 }, sheeturl: "https://docs.google.com/spreadsheets/d/1vXuqsRrYiEoBhBmLZvnOy4U9ycpURRXoua2driVBwtc/edit?usp=drive_link", active: true },
+      { name: "翔耀一号館", position: { lat: 35.0104277, lng: 135.9540435 }, sheeturl: "https://docs.google.com/spreadsheets/d/1O9h7pW8CgaQ2GPmlY_18nxT0hv0-SSvqq1oLgRwgTAI/edit?usp=drive_link", active: true },
+      //06-higashiyagura
+      { name: "Angel Plaza 南草津駅前", position: { lat: 35.0044756, lng: 135.9528029 }, sheeturl: "https://docs.google.com/spreadsheets/d/1AfH9gB3oM6jP7WntKDupa6mqwKYBNjiXnPw3T00WYhU/edit?usp=drive_link", active: true },
+      { name: "エースマンション", position: { lat: 34.9999195, lng: 135.958385 }, sheeturl: "https://docs.google.com/spreadsheets/d/1nXPWIgx2vimxvb_A-uKnUwGKaZrA9VU2Q-69w69TktQ/edit?usp=drive_link", active: true },
+      { name: "エンゼルプラザ・イーストⅠ", position: { lat: 35.0049842, lng: 135.9532515 }, sheeturl: "https://docs.google.com/spreadsheets/d/1fIc29Rh2JFmMEaKZhuClWO8Vu9suEuVSa5nVVrT9IJk/edit?usp=drive_link", active: true },
+      { name: "エンゼルプラザ・イーストⅡ", position: { lat: 35.004949, lng: 135.9544115 }, sheeturl: "https://docs.google.com/spreadsheets/d/14Bg_JmDYZaQoL0exCUSS7ZC76XU_CAAakoo8o7nMm68/edit?usp=drive_link", active: true },
+      { name: "コージーコート南草津", position: { lat: 35.0055752, lng: 135.9542425 }, sheeturl: "https://docs.google.com/spreadsheets/d/13Ykw0Cttql6wl1sPcClIG9gI0MyFp4OLy-QxrhTy_y0/edit?usp=drive_link", active: true },
+      { name: "スチューデンHIROSE", position: { lat: 34.999783, lng: 135.955575 }, sheeturl: "https://docs.google.com/spreadsheets/d/1xoxDEx_3fYJGqMciyyKARinHVXv0lDK0IWjUNXppLhE/edit?usp=drive_link", active: true },
+      { name: "ロイヤルステージ", position: { lat: 35.0076439, lng: 135.9565015 }, sheeturl: "https://docs.google.com/spreadsheets/d/11HRe1lm1f2xLLVf69nmffnX9DJ2GfeHwXgD2TglncpM/edit?usp=drive_link", active: true },
+      { name: "野路一番館", position: { lat: 35.0001624, lng: 135.9554606 }, sheeturl: "https://docs.google.com/spreadsheets/d/1BF5XXv0hWTCAPQCiSu2R0tRriKu43aursGqHlh9qzu8/edit?usp=drive_link", active: true },
+      //07-nishiyagura
+      { name: "avant garde", position: { lat: 35.0108405, lng: 135.9474933 }, sheeturl: "https://docs.google.com/spreadsheets/d/10JYFus_G9DEJIeSl55aWtG4Z6-detX5yqFOVwDmwc-Y/edit?usp=drive_link", active: true },
+      //08-kusatsu
+      { name: "Prima Villa 本陣", position: { lat: 35.016057, lng: 135.9593726 }, sheeturl: "https://docs.google.com/spreadsheets/d/13w4UPdIKILgJWd5smddn5fh87Ja7dGN47rsYBXAFdxA/edit?usp=drive_link", active: true },
+      { name: "シャーメゾングランヴィア10", position: { lat: 35.0171388, lng: 135.9640131 }, sheeturl: "https://docs.google.com/spreadsheets/d/1xXEPIUOQ-sklSXr26KvLq6A914ccqe20TMiQYDS6vz4/edit?usp=drive_link", active: true },
+      { name: "ハイツ宮ノ森", position: { lat: 35.0135551, lng: 135.9553018 }, sheeturl: "https://docs.google.com/spreadsheets/d/1XBY_anXaVj16zDsuymyElp7ZEMtz6-qs-Di3UhEVf8s/edit?usp=drive_link", active: true },
+      { name: "メゾン草津本陣", position: { lat: 35.0152777, lng: 135.9566049 }, sheeturl: "https://docs.google.com/spreadsheets/d/13MMJnCNSKtWLNsAFbbVtFMqIg1gzfPrOW_V0VriRxV0/edit?usp=drive_link", active: true },
+      { name: "ラフィーネ千代田", position: { lat: 35.0151663, lng: 135.9590291 }, sheeturl: "https://docs.google.com/spreadsheets/d/1rY7H2Mb8bFapwLEgJI_JiH8p9YS3IhwcFxtWn4QkMZc/edit?usp=drive_link", active: true },
+      //09-minamikusatsu
+      { name: "Atlantide392", position: { lat: 35.0034536, lng: 135.9442255 }, sheeturl: "https://docs.google.com/spreadsheets/d/1QBiaC34JIEXyUgGC9wnxVkPxE1_NWtvoDgUyPkguv94/edit?usp=drive_link", active: true },
+      { name: "Bene南草津", position: { lat: 35.0042273, lng: 135.944174 }, sheeturl: "https://docs.google.com/spreadsheets/d/1UYm_qXYhjh0QO3Lz1JOuCVAw0PSeiA0dUrpgb9c4NKA/edit?usp=drive_link", active: true },
+      { name: "Bloom Maison南草津", position: { lat: 35.0038551, lng: 135.9423684 }, sheeturl: "https://docs.google.com/spreadsheets/d/14bB5tel9sz9XIWhzPlLaPLu0bjLp4omT9mlLIQNsXpM/edit?usp=drive_link", active: true },
+      { name: "f99", position: { lat: 35.0030218, lng: 135.9412178 }, sheeturl: "https://docs.google.com/spreadsheets/d/1NeSzOE6a2NuBFtT0by1_ElRONh1WFaauBmzXUpHrbHA/edit?usp=drive_link", active: true },
+      { name: "GRAN NOVA", position: { lat: 35.0055442, lng: 135.9430019 }, sheeturl: "https://docs.google.com/spreadsheets/d/1tXw_LwDpmwdEHQgjc1F8MURiGhkh_amPJaXJ3hm23ls/edit?usp=drive_link", active: true },
+      { name: "Grand Marry Bell ST", position: { lat: 35.0031332, lng: 135.9456111 }, sheeturl: "https://docs.google.com/spreadsheets/d/1NIneSasf64BekxV2-cGuRrENIQEGgyu-882MZxt-9_I/edit?usp=drive_link", active: true },
+      { name: "Honest Court南草津", position: { lat: 35.0025836, lng: 135.9421183 }, sheeturl: "https://docs.google.com/spreadsheets/d/1jH6ehhOnzZ-ACU30JyR4qJhZ-foNB8GXQ4viRL5_oVQ/edit?usp=drive_link", active: true },
+      { name: "KDXレジデンス南草津", position: { lat: 35.0037167, lng: 135.9456873 }, sheeturl: "https://docs.google.com/spreadsheets/d/1SwCxH_FvpKUeMb4hEtvCC1mmDCvO5oaBPCr0fuxmkU4/edit?usp=drive_link", active: true },
+      { name: "Nヴィレッジ", position: { lat: 35.0061241, lng: 135.9401918 }, sheeturl: "https://docs.google.com/spreadsheets/d/1N3JqO2NUm2izG6AhsdvSzNX7kXtf7JMXWZgDqOUG4Co/edit?usp=drive_link", active: true },
+      { name: "イストアール", position: { lat: 35.0021487, lng: 135.9435531 }, sheeturl: "https://docs.google.com/spreadsheets/d/1-oaEnGulBdiRKqugCdgUXX-Y-yeFRMA4KQ3HGeM0UpQ/edit?usp=drive_link", active: true },
+      { name: "ヴェルジュ南草津Ⅱ", position: { lat: 35.0050195, lng: 135.9404849 }, sheeturl: "https://docs.google.com/spreadsheets/d/1zvu8Er3o_fJ1sF522i7q0KHSeWhsTZ4k-e69_7TjjVY/edit?usp=drive_link", active: true },
+      { name: "ヴォール レーベン", position: { lat: 35.0044594, lng: 135.9421424 }, sheeturl: "https://docs.google.com/spreadsheets/d/1n3G4W7OV-UAblDRVZuzbFq8R3L2HqBQu2QOJFZ0bg2A/edit?usp=drive_link", active: true },
+      { name: "カルムパーチェス", position: { lat: 35.003253, lng: 135.943001 }, sheeturl: "https://docs.google.com/spreadsheets/d/1aRSaltlIMTvMbUckcqeld9t1pE-wWRadjlQS3iTWQFY/edit?usp=drive_link", active: true },
+      { name: "クオリア", position: { lat: 35.0044504, lng: 135.9407577 }, sheeturl: "https://docs.google.com/spreadsheets/d/1EQlrmJHZLPRFEfz2xt0Dd_X1LUyvgZ6acfjK9qeIF5E/edit?usp=drive_link", active: true },
+      { name: "グローリ南草津Ⅱ", position: { lat: 35.005131, lng: 135.9477118 }, sheeturl: "https://docs.google.com/spreadsheets/d/1vIhypTllrzFrBif7TI1Raoq488v48IUMYspAfSCAbb8/edit?usp=drive_link", active: true },
+      { name: "セジュール・ユタカ", position: { lat: 35.0042453, lng: 135.9403132 }, sheeturl: "https://docs.google.com/spreadsheets/d/1MdnOVPnHZf6o_rCcZVTCFmikNEVNcvI4Qb28kxNGZ1s/edit?usp=drive_link", active: true },
+      { name: "セレンティ", position: { lat: 35.0031715, lng: 135.9394767 }, sheeturl: "https://docs.google.com/spreadsheets/d/1B_AQha-KtcccSnefOmBxMd69u_q7DxObY9o27qc-zJU/edit?usp=drive_link", active: true },
+      { name: "ティ・ア・モール", position: { lat: 35.0024652, lng: 135.9452816 }, sheeturl: "https://docs.google.com/spreadsheets/d/1C_Y2RipdcwQgcFoFcFcNMsublo5tcv1qzdOrPwHzW3M/edit?usp=drive_link", active: true },
+      { name: "プリエール ソシア ", position: { lat: 35.0043235, lng: 135.943737 }, sheeturl: "https://docs.google.com/spreadsheets/d/1Vpn_BaHWYvAbrU2J-R4P1_AMrBYJO96pqf5j6_QfCaI/edit?usp=drive_link", active: true },
+      { name: "プリエール南草津", position: { lat: 35.0022299, lng: 135.94454 }, sheeturl: "https://docs.google.com/spreadsheets/d/12mF4ya8Wyfg0GOdji0x0IYxLNC-CTdRVrTv_ePmci-Q/edit?usp=drive_link", active: true },
+      { name: "メゾン・ド・ベルーフ", position: { lat: 35.0023346, lng: 135.9430411 }, sheeturl: "https://docs.google.com/spreadsheets/d/1eRydCeG1rh560EP0aPtY-8xijDL7MqC3HJNciSzM-Ig/edit?usp=drive_link", active: true },
+      { name: "メゾン・ド・フォンテ", position: { lat: 35.0015477, lng: 135.9442006 }, sheeturl: "https://docs.google.com/spreadsheets/d/1tqZi0iBQ4pYaszhOQYsiCFYXGE2DhQQl8tSCUPyQEyQ/edit?usp=drive_link", active: true },
+      { name: "メゾン・ド・メルシー", position: { lat: 35.0019652, lng: 135.9449502 }, sheeturl: "https://docs.google.com/spreadsheets/d/1YVPOzUNQzJE7JKYImfiD1_YH2ClxgXuY_j2NCx3Fajk/edit?usp=drive_link", active: true },
+      { name: "メゾンクレールⅢ", position: { lat: 35.0042959, lng: 135.9427629 }, sheeturl: "https://docs.google.com/spreadsheets/d/16jNZWwkDvgMqOfk4pkrRXQw07EYAeHwq_xqWFyj89x4/edit?usp=drive_link", active: true },
+      { name: "リュミエール", position: { lat: 35.0027162, lng: 135.9428843 }, sheeturl: "https://docs.google.com/spreadsheets/d/1Vu4GwwduZ87RzqmmLLFDOACY_1nIDhjFny1G7R2f6VY/edit?usp=drive_link", active: true },
+      { name: "太陽プラザ南草津駅前", position: { lat: 35.0022328, lng: 135.9455474 }, sheeturl: "https://docs.google.com/spreadsheets/d/1n9rSu3A7nQT0yPsXvZ_aTUWLANE9vvpq5ToL3khgBG0/edit?usp=drive_link", active: true },
+      //10-higashiyagura
+      { name: "ハイツ戸苅", position: { lat: 35.0140779, lng: 135.9662503 }, sheeturl: "https://docs.google.com/spreadsheets/d/1H-Y-ueqUxqQkTjurLAJC42xNKQgqMdcEGgPQmI10FpA/edit?usp=drive_link", active: true },
+    ];
+
+      function convertSheetToCsvUrl(sheetUrl) {
+        const m = sheetUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+        if (!m) return null;
+        const sheetId = m[1];
+        
+        // 特定のGIDを指定せず、スプレッドシート全体のデータをCSVとして書き出す設定に変更
+        // 後の処理で「部屋一覧」という名前のシートを特定します
+        return `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent("部屋一覧")}`;
+      }
+
+      async function fetchVisitStatus(apt) {
+      if (!apt.active || !apt.sheetUrl) return { color: "default" };
+      try {
+        const res = await fetch(convertSheetToCsvUrl(apt.sheetUrl));
+        const text = await res.text();
+        
+        // CSVの各行をパース（カンマで分割。引用符がある場合も考慮）
+        const rows = text.split(/\r?\n/).map(row => {
+          // 引用符 " で囲まれた値を考慮して分割
+          return row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(cell => cell.replace(/^"|"$/g, '').trim());
+        });
+        
+        let totalRooms = 0;
+        let enteredCount = 0;
+
+        // 2行目以降（ヘッダーを除いた実データ部分）をスキャン
+        // ※ gviz/tq を使うとインデックスが変わる可能性があるため、全体を確認
+        for (let i = 0; i < rows.length; i++) {
+          const row = rows[i];
+          if (!row || row.length < 2) continue;
+
+          const room = row[0]; // 1列目: 部屋番号
+          const visit = row[1]; // 2列目: 訪問状況
+
+          // 【重要】部屋番号が「数字のみ」または「号室」などの文字を含む、
+          // かつ明らかにシステム的なヘッダーや空行でない場合のみカウント
+          if (room && room !== "" && !room.includes("部屋番号") && !room.includes("table")) {
+            totalRooms++;
+            // 訪問状況に文字が入っていればカウント
+            if (visit && visit !== "") {
+              enteredCount++;
+            }
+          }
+        } 
+
+        if (totalRooms === 0) return { color: "default" };
+
+        const ratio = enteredCount / totalRooms;
+        console.log(`${apt.name}: ${enteredCount}/${totalRooms} (${(ratio * 100).toFixed(1)}%)`);
+
+        // 判定ロジック
+        if (ratio >= 1.0) return { color: "red" };
+        if (ratio >= 0.5) return { color: "yellow" };
+        return { color: "default" };
+      } catch (e) { 
+        console.error(`${apt.name} のデータ取得失敗:`, e);
+        return { color: "default" }; 
+      }
+    }
+
+    async function addApartmentMarkers() {
+      const scales = getMarkerScale();
+      
+      apartments.forEach((apt) => {
+        // 1. まずは「デフォルト色（青緑）」で即座にマーカーを作成して表示
+        const marker = new google.maps.Marker({
+          position: apt.position,
+          map: map,
+          title: apt.name,
+          icon: {
+            // 軽量化したピン型パス（計算負荷が低い）
+            path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+            fillColor: "#00A0A0", // デフォルト色
+            fillOpacity: 1.0,
+            strokeColor: "white",
+            strokeWeight: 1.5,
+            scale: scales.apt * 70, // パスが小さいため、係数を掛けて調整
+            anchor: new google.maps.Point(12, 22)
+          }
+        });
+
+        // 2. クリックイベントは即座に登録（データ読み込みを待たずに開ける）
+        if (apt.active && apt.sheetUrl) {
+          marker.addListener("click", () => window.open(apt.sheetUrl, "_blank"));
+          
+          // 3. 非同期で個別にステータス（スプレッドシート）を確認
+          // 完了したピンから順次、色を更新していく
+          fetchVisitStatus(apt).then(result => {
+            let newColor = !apt.active ? "#808080" : 
+                          (result.color === "red" ? "#E53935" : 
+                          (result.color === "yellow" ? "#FBC02D" : "#00A0A0"));
+            
+            const icon = marker.getIcon();
+            if (icon.fillColor !== newColor) {
+              icon.fillColor = newColor;
+              marker.setIcon(icon); // 色だけを更新
+            }
+          });
+        }
+        apartmentMarkerObjects.push(marker);
+      });
+    }
+
+    function initMap() {
+      map = new google.maps.Map(document.getElementById("map"), { center: INITIAL_CENTER, zoom: 16 });
+      addApartmentMarkers();
+
+      if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(
+          position => {
+            const userPos = { lat: position.coords.latitude, lng: position.coords.longitude };
+            const scales = getMarkerScale();
+            
+            if (!userMarker) {
+              shadowMarker = new google.maps.Marker({
+                position: userPos, map: map, zIndex: 1,
+                icon: { path: google.maps.SymbolPath.CIRCLE, scale: scales.user * 1.4, fillColor: "black", fillOpacity: 0.2, strokeWeight: 0 }
+              });
+              userMarker = new google.maps.Marker({
+                position: userPos, map: map, zIndex: 2, title: "現在地",
+                icon: { path: google.maps.SymbolPath.CIRCLE, scale: scales.user, fillColor: "#4285F4", fillOpacity: 1, strokeWeight: 2, strokeColor: "white" }
+              });
+              map.setCenter(userPos);
+            } else {
+              userMarker.setPosition(userPos);
+              shadowMarker.setPosition(userPos);
+            }
+          },
+          error => {
+            console.warn(error.message);
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+      }
+
+      // アニメーション処理
+      setInterval(() => {
+        if (!userMarker) return;
+        const base = getMarkerScale().user;
+        let s = userMarker.getIcon().scale;
+        if (this.growing === undefined) this.growing = true;
+
+        if (this.growing) {
+          s += 0.3;
+          if (s >= base * 1.3) this.growing = false;
+        } else {
+          s -= 0.3;
+          if (s <= base) this.growing = true;
+        }
+
+        const icon = userMarker.getIcon();
+        icon.scale = s;
+        userMarker.setIcon(icon);
+      }, 100);
+
+      // リサイズ時にアイコンを即座に更新
+      window.addEventListener('resize', () => {
+        const s = getMarkerScale();
+
+        apartmentMarkerObjects.forEach(m => { 
+          const i = m.getIcon(); 
+          i.scale = s.apt * APT_SCALE_FACTOR;  // ← 修正ポイント
+          m.setIcon(i); 
+        });
+
+        if (userMarker) { 
+          const i = userMarker.getIcon(); 
+          i.scale = s.user; 
+          userMarker.setIcon(i); 
+        }
+
+        if (shadowMarker) {
+          const i = shadowMarker.getIcon();
+          i.scale = s.user * 1.4;
+          shadowMarker.setIcon(i);
+        }
+      });
+    }
+  </script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCH5MfDcxPbehciSlK36IrnVPH2LTBUQ_A&callback=initMap" async defer></script>
+</body>
+</html>
