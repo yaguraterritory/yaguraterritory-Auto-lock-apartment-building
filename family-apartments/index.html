@@ -118,6 +118,8 @@
     let apartmentMarkerObjects = [];
     let userMarker = null;
     let shadowMarker = null;
+    let isGrowing = true;
+    const APT_SCALE_FACTOR = 70;
 
     const INITIAL_CENTER = { lat: 35.012, lng: 135.965 };
 
@@ -349,18 +351,18 @@
       setInterval(() => {
         if (!userMarker) return;
         const base = getMarkerScale().user;
-        let s = userMarker.getIcon().scale;
-        if (this.growing === undefined) this.growing = true;
+        const icon = userMarker.getIcon(); // アイコンオブジェクトを取得
+        let s = icon.scale;
 
-        if (this.growing) {
+        // this.growing ではなく変数 isGrowing を使用
+        if (isGrowing) {
           s += 0.3;
-          if (s >= base * 1.3) this.growing = false;
+          if (s >= base * 1.3) isGrowing = false;
         } else {
           s -= 0.3;
-          if (s <= base) this.growing = true;
+          if (s <= base) isGrowing = true;
         }
 
-        const icon = userMarker.getIcon();
         icon.scale = s;
         userMarker.setIcon(icon);
       }, 100);
@@ -371,20 +373,18 @@
 
         apartmentMarkerObjects.forEach(m => { 
           const i = m.getIcon(); 
-          i.scale = s.apt * APT_SCALE_FACTOR;  // ← 修正ポイント
-          m.setIcon(i); 
+          if (i) { // アイコンが存在する場合のみ実行（ガード）
+            i.scale = s.apt * 70;
+            m.setIcon(i); 
+          }
         });
 
         if (userMarker) { 
           const i = userMarker.getIcon(); 
-          i.scale = s.user; 
-          userMarker.setIcon(i); 
-        }
-
-        if (shadowMarker) {
-          const i = shadowMarker.getIcon();
-          i.scale = s.user * 1.4;
-          shadowMarker.setIcon(i);
+          if (i) { // ガードを追加
+            i.scale = s.user; 
+            userMarker.setIcon(i);
+          }
         }
       });
     }
